@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Million Image Gallery — Storyboard</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #070711;
+    color: #e2e8f0;
+    font-family: 'Cairo', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* ── Header ── */
+  .page-header {
+    text-align: center;
+    padding: 60px 20px 40px;
+    background: linear-gradient(180deg, #0f0f2e 0%, #070711 100%);
+    border-bottom: 1px solid #1e1e3a;
+  }
+  .page-header h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 900;
+    background: linear-gradient(135deg, #818cf8, #c084fc, #f472b6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 12px;
+  }
+  .page-header p {
+    color: #64748b;
+    font-size: 1.1rem;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  /* ── Flow container ── */
+  .flow {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 60px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 80px;
+  }
+
+  /* ── Step ── */
+  .step {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: center;
+    position: relative;
+  }
+  .step.reverse { direction: ltr; }
+  .step.reverse .step-info { direction: rtl; }
+
+  .step-info {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .step-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(99,102,241,0.15);
+    border: 1px solid rgba(99,102,241,0.4);
+    color: #818cf8;
+    padding: 6px 14px;
+    border-radius: 100px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    width: fit-content;
+  }
+  .step-badge .num {
+    background: #6366f1;
+    color: white;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem;
+  }
+  .step-title {
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    font-weight: 900;
+    color: #f1f5f9;
+    line-height: 1.3;
+  }
+  .step-desc {
+    color: #94a3b8;
+    font-size: 1rem;
+    line-height: 1.8;
+  }
+  .step-details {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .detail-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #cbd5e1;
+    font-size: 0.9rem;
+  }
+  .detail-item .dot {
+    width: 8px; height: 8px;
+    background: #6366f1;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ── Screen mockup ── */
+  .screen {
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid #1e1e3a;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(99,102,241,0.1);
+    background: #0d0d1e;
+    position: relative;
+  }
+  .screen-bar {
+    background: #12122a;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid #1e1e3a;
+  }
+  .screen-bar .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .screen-bar .d1 { background: #ff5f57; }
+  .screen-bar .d2 { background: #ffbd2e; }
+  .screen-bar .d3 { background: #28c840; }
+  .screen-bar .url {
+    margin-right: auto;
+    background: #1a1a35;
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-size: 0.7rem;
+    color: #64748b;
+    font-family: monospace;
+    direction: ltr;
+  }
+  .screen-body { padding: 0; }
+
+  /* ── Arrow between steps ── */
+  .arrow-down {
+    display: flex;
+    justify-content: center;
+    color: #4338ca;
+    font-size: 2rem;
+    margin: -20px 0;
+    opacity: 0.6;
+  }
+
+  /* ── SCREEN 1: Landing ── */
+  .s1-hero {
+    background: linear-gradient(180deg, #0a0a1f 0%, #12123a 50%, #0a0a1f 100%);
+    padding: 30px 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .s1-grid-bg {
+    position: absolute; inset: 0;
+    background-image: linear-gradient(rgba(99,102,241,0.07) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(99,102,241,0.07) 1px, transparent 1px);
+    background-size: 30px 30px;
+  }
+  .s1-nav {
+    background: rgba(12,12,30,0.9);
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    border-bottom: 1px solid #1e1e3a;
+  }
+  .s1-logo { color: #818cf8; font-weight: 700; font-size: 0.8rem; }
+  .s1-cta-nav {
+    background: #6366f1;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.65rem;
+  }
+  .s1-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(99,102,241,0.15);
+    border: 1px solid rgba(99,102,241,0.3);
+    padding: 4px 10px; border-radius: 100px;
+    font-size: 0.65rem; color: #818cf8;
+    margin-bottom: 12px; position: relative;
+  }
+  .s1-badge .live { width: 6px; height: 6px; background: #22c55e; border-radius: 50%; }
+  .s1-h1 {
+    font-size: 1.5rem; font-weight: 900; color: white;
+    line-height: 1.2; margin-bottom: 8px; position: relative;
+  }
+  .s1-h1 span { background: linear-gradient(135deg,#818cf8,#c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .s1-sub { font-size: 0.7rem; color: #64748b; margin-bottom: 16px; position: relative; }
+  .s1-btns { display: flex; gap: 8px; justify-content: center; position: relative; }
+  .s1-btn-primary {
+    background: #6366f1; color: white; padding: 7px 14px;
+    border-radius: 8px; font-size: 0.7rem; font-weight: 700;
+  }
+  .s1-btn-ghost {
+    border: 1px solid #2d2d4e; color: #94a3b8; padding: 7px 14px;
+    border-radius: 8px; font-size: 0.7rem;
+  }
+  .s1-progress {
+    padding: 12px 16px; background: #0d0d20;
+  }
+  .s1-prog-label { display: flex; justify-content: space-between; font-size: 0.6rem; color: #475569; margin-bottom: 4px; }
+  .s1-prog-bar { height: 4px; background: #1e1e3a; border-radius: 2px; overflow: hidden; }
+  .s1-prog-fill { height: 100%; width: 3%; background: linear-gradient(90deg, #6366f1, #a855f7); border-radius: 2px; }
+  .s1-cards {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px; padding: 12px 16px 16px;
+  }
+  .s1-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid #1e1e3a;
+    border-radius: 8px; padding: 10px 8px;
+    font-size: 0.6rem; text-align: center; color: #94a3b8;
+  }
+  .s1-card .icon { font-size: 1.2rem; margin-bottom: 4px; }
+  .s1-card .title { font-weight: 700; color: #cbd5e1; margin-bottom: 2px; font-size: 0.62rem; }
+
+  /* ── SCREEN 2: Gallery Zoom Out ── */
+  .s2-body { padding: 0; position: relative; }
+  .s2-nav {
+    background: rgba(10,10,20,0.95);
+    padding: 8px 14px;
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 0.65rem; border-bottom: 1px solid #1e1e3a;
+    backdrop-filter: blur(10px);
+  }
+  .s2-grid-container {
+    background: #060612;
+    padding: 12px;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+  }
+  .s2-grid {
+    display: grid;
+    grid-template-columns: repeat(40, 1fr);
+    gap: 1px;
+    width: 100%;
+    aspect-ratio: 1;
+    background: #0a0a18;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .s2-cell {
+    aspect-ratio: 1;
+    background: #0d1020;
+  }
+  .s2-cell.sold { background: var(--c); }
+  .s2-hint {
+    font-size: 0.6rem; color: #475569;
+    background: rgba(15,15,30,0.8);
+    padding: 4px 10px; border-radius: 100px;
+    border: 1px solid #1e1e3a;
+  }
+  .s2-zoom-btns {
+    position: absolute; bottom: 50px; right: 10px;
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .s2-zbtn {
+    width: 22px; height: 22px;
+    background: rgba(15,15,30,0.9);
+    border: 1px solid #1e1e3a;
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; color: #94a3b8;
+  }
+
+  /* ── SCREEN 3: Zoom In ── */
+  .s3-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 3px;
+    padding: 12px;
+    background: #060612;
+  }
+  .s3-cell {
+    aspect-ratio: 1;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #0d1020;
+    border: 1px solid #1a1a2e;
+    position: relative;
+  }
+  .s3-cell.has-img {
+    background: var(--c);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+  }
+  .s3-cell.hovered {
+    outline: 2px solid #6366f1;
+    outline-offset: 1px;
+    z-index: 2;
+  }
+  .s3-tooltip {
+    position: absolute;
+    top: -35px; right: 0;
+    background: rgba(10,10,25,0.95);
+    border: 1px solid #2d2d4e;
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 0.55rem;
+    color: #cbd5e1;
+    white-space: nowrap;
+    z-index: 10;
+  }
+
+  /* ── SCREEN 4: Purchase Modal ── */
+  .s4-overlay {
+    background: #060612;
+    padding: 10px;
+    position: relative;
+  }
+  .s4-backdrop {
+    background: rgba(0,0,0,0.6);
+    border-radius: 8px;
+    padding: 10px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .s4-modal {
+    background: #12122a;
+    border: 1px solid #2d2d4e;
+    border-radius: 12px;
+    padding: 16px;
+    width: 100%;
+    position: relative;
+  }
+  .s4-close {
+    position: absolute; top: 10px; left: 10px;
+    color: #475569; font-size: 1rem; cursor: pointer;
+  }
+  .s4-header {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+  }
+  .s4-icon {
+    width: 36px; height: 36px;
+    background: rgba(99,102,241,0.15);
+    border: 1px solid rgba(99,102,241,0.3);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem;
+  }
+  .s4-modal h3 { font-size: 0.9rem; font-weight: 700; color: white; }
+  .s4-modal p.sub { font-size: 0.65rem; color: #64748b; }
+  .s4-price-box {
+    background: rgba(99,102,241,0.1);
+    border: 1px solid rgba(99,102,241,0.25);
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .s4-price-box .label { font-size: 0.7rem; color: #94a3b8; }
+  .s4-price-box .price { font-size: 1.4rem; font-weight: 900; color: #818cf8; }
+  .s4-input {
+    width: 100%;
+    background: #1a1a35;
+    border: 1px solid #2d2d4e;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 0.7rem;
+    color: #94a3b8;
+    margin-bottom: 10px;
+    direction: ltr;
+    font-family: monospace;
+  }
+  .s4-buy-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-align: center;
+  }
+  .s4-secure { text-align: center; font-size: 0.6rem; color: #475569; margin-top: 6px; }
+
+  /* ── SCREEN 5: Stripe Checkout ── */
+  .s5-body {
+    background: white;
+    padding: 16px;
+    direction: ltr;
+  }
+  .s5-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  .s5-stripe-logo {
+    background: #635bff;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    font-family: sans-serif;
+  }
+  .s5-product {
+    display: flex; align-items: center; justify-content: space-between;
+    background: #f9fafb; border-radius: 8px;
+    padding: 10px 12px; margin-bottom: 14px;
+  }
+  .s5-product .name { font-size: 0.75rem; font-weight: 600; color: #111; }
+  .s5-product .detail { font-size: 0.6rem; color: #6b7280; }
+  .s5-product .amount { font-size: 1rem; font-weight: 700; color: #111; }
+  .s5-form-label { font-size: 0.65rem; color: #6b7280; margin-bottom: 4px; }
+  .s5-card-input {
+    background: white;
+    border: 1.5px solid #d1d5db;
+    border-radius: 6px;
+    padding: 8px 10px;
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .s5-card-input .placeholder { font-size: 0.65rem; color: #9ca3af; font-family: monospace; }
+  .s5-card-input .cards { display: flex; gap: 4px; }
+  .s5-card-chip {
+    width: 24px; height: 16px; border-radius: 2px;
+    background: #e5e7eb; font-size: 0.4rem;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; color: #6b7280;
+  }
+  .s5-pay-btn {
+    width: 100%;
+    background: #635bff;
+    color: white;
+    border-radius: 6px;
+    padding: 10px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 8px;
+    font-family: sans-serif;
+  }
+  .s5-powered {
+    text-align: center;
+    font-size: 0.55rem;
+    color: #9ca3af;
+    font-family: sans-serif;
+  }
+
+  /* ── SCREEN 6: Upload ── */
+  .s6-body { padding: 14px; }
+  .s6-success-bar {
+    background: rgba(34,197,94,0.1);
+    border: 1px solid rgba(34,197,94,0.3);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.65rem;
+    color: #4ade80;
+    display: flex; align-items: center; gap: 6px;
+    margin-bottom: 12px;
+  }
+  .s6-title { font-size: 1rem; font-weight: 700; color: white; margin-bottom: 4px; }
+  .s6-sub { font-size: 0.65rem; color: #64748b; margin-bottom: 12px; }
+  .s6-dropzone {
+    border: 2px dashed #2d2d4e;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 10px;
+    background: rgba(99,102,241,0.03);
+  }
+  .s6-dropzone .icon { font-size: 1.8rem; margin-bottom: 6px; }
+  .s6-dropzone p { font-size: 0.65rem; color: #475569; }
+  .s6-input {
+    width: 100%;
+    background: #1a1a35;
+    border: 1px solid #2d2d4e;
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-size: 0.7rem;
+    color: #94a3b8;
+    margin-bottom: 8px;
+    direction: rtl;
+  }
+  .s6-upload-btn {
+    width: 100%;
+    background: #6366f1;
+    color: white; border-radius: 8px;
+    padding: 9px; font-size: 0.75rem; font-weight: 700;
+    text-align: center;
+  }
+
+  /* ── SCREEN 7: Gallery with image ── */
+  .s7-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 3px; padding: 12px;
+    background: #060612;
+  }
+  .s7-cell {
+    aspect-ratio: 1;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #0d1020;
+    border: 1px solid #1a1a2e;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.9rem;
+  }
+  .s7-cell.mine {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    animation: pulse 2s ease-in-out infinite;
+    border-color: #6366f1;
+    position: relative;
+  }
+  .s7-cell.mine::after {
+    content: '★';
+    position: absolute;
+    top: -4px; right: -4px;
+    font-size: 0.6rem;
+    color: #fbbf24;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(99,102,241,0.4); }
+    50% { box-shadow: 0 0 0 6px rgba(99,102,241,0); }
+  }
+  .s7-confetti {
+    padding: 8px 12px;
+    background: rgba(34,197,94,0.08);
+    border-top: 1px solid rgba(34,197,94,0.2);
+    display: flex; align-items: center; gap: 6px;
+    font-size: 0.65rem; color: #4ade80;
+  }
+
+  /* ── Connector arrows ── */
+  .connector {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    padding: 10px 0;
+  }
+  .connector-line {
+    width: 2px; height: 50px;
+    background: linear-gradient(180deg, #2d2d4e, #6366f1);
+    position: relative;
+  }
+  .connector-line::after {
+    content: '▼';
+    position: absolute;
+    bottom: -14px; left: 50%;
+    transform: translateX(-50%);
+    color: #6366f1;
+    font-size: 0.8rem;
+  }
+  .connector-label {
+    position: absolute;
+    right: calc(50% + 16px);
+    background: rgba(99,102,241,0.1);
+    border: 1px solid rgba(99,102,241,0.2);
+    border-radius: 100px;
+    padding: 3px 10px;
+    font-size: 0.65rem;
+    color: #818cf8;
+    white-space: nowrap;
+  }
+
+  /* ── Full flow diagram at top ── */
+  .flow-overview {
+    max-width: 1100px;
+    margin: 0 auto 60px;
+    padding: 0 20px;
+  }
+  .flow-overview-title {
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #94a3b8;
+    margin-bottom: 30px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+  }
+  .flow-steps {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .flow-step-chip {
+    background: rgba(99,102,241,0.1);
+    border: 1px solid rgba(99,102,241,0.25);
+    border-radius: 10px;
+    padding: 12px 16px;
+    text-align: center;
+    min-width: 100px;
+  }
+  .flow-step-chip .chip-icon { font-size: 1.4rem; margin-bottom: 4px; }
+  .flow-step-chip .chip-label { font-size: 0.7rem; color: #cbd5e1; font-weight: 600; }
+  .flow-step-chip .chip-sub { font-size: 0.6rem; color: #475569; }
+  .flow-arrow { color: #2d2d4e; font-size: 1.2rem; margin: 0 2px; }
+
+  /* ── Tech stack section ── */
+  .tech-section {
+    background: #0d0d1e;
+    border-top: 1px solid #1e1e3a;
+    border-bottom: 1px solid #1e1e3a;
+    padding: 50px 20px;
+    margin: 0 0 60px;
+  }
+  .tech-section h2 {
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #f1f5f9;
+    margin-bottom: 30px;
+  }
+  .tech-grid {
+    max-width: 900px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+  }
+  .tech-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid #1e1e3a;
+    border-radius: 10px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .tech-card .t-icon { font-size: 1.5rem; }
+  .tech-card .t-name { font-size: 0.8rem; font-weight: 700; color: #e2e8f0; }
+  .tech-card .t-role { font-size: 0.65rem; color: #475569; }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    .step { grid-template-columns: 1fr; }
+    .step.reverse { direction: rtl; }
+    .flow-steps { flex-direction: column; }
+    .flow-arrow { transform: rotate(90deg); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     PAGE HEADER
+══════════════════════════════════════════ -->
+<div class="page-header">
+  <h1>Million Image Gallery</h1>
+  <p>Storyboard — رحلة المستخدم من الشاشة الأولى لآخر خطوة</p>
+</div>
+
+<!-- ══════════════════════════════════════════
+     FLOW OVERVIEW
+══════════════════════════════════════════ -->
+<div style="padding: 40px 20px 0;">
+  <div class="flow-overview">
+    <p class="flow-overview-title">خريطة رحلة المستخدم</p>
+    <div class="flow-steps">
+      <div class="flow-step-chip">
+        <div class="chip-icon">🏠</div>
+        <div class="chip-label">Landing</div>
+        <div class="chip-sub">الصفحة الرئيسية</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step-chip">
+        <div class="chip-icon">🔭</div>
+        <div class="chip-label">Gallery Zoom Out</div>
+        <div class="chip-sub">مليون خانة</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step-chip">
+        <div class="chip-icon">🔍</div>
+        <div class="chip-label">Zoom In</div>
+        <div class="chip-sub">صور فردية</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step-chip">
+        <div class="chip-icon">🛒</div>
+        <div class="chip-label">Purchase</div>
+        <div class="chip-sub">اشتري خانة</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step-chip">
+        <div class="chip-icon">💳</div>
+        <div class="chip-label">Stripe Pay</div>
+        <div class="chip-sub">$0.50 دفع</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step-chip">
+        <div class="chip-icon">📤</div>
+        <div class="chip-label">Upload</div>
+        <div class="chip-sub">ارفع صورتك</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step-chip" style="border-color: rgba(34,197,94,0.4); background: rgba(34,197,94,0.08);">
+        <div class="chip-icon">✅</div>
+        <div class="chip-label">Live!</div>
+        <div class="chip-sub">صورتك للعالم</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     TECH STACK
+══════════════════════════════════════════ -->
+<div class="tech-section">
+  <h2>Stack التقنيات</h2>
+  <div class="tech-grid">
+    <div class="tech-card">
+      <span class="t-icon">▲</span>
+      <div><div class="t-name">Next.js 14</div><div class="t-role">Framework الأساسي</div></div>
+    </div>
+    <div class="tech-card">
+      <span class="t-icon">🗄️</span>
+      <div><div class="t-name">Neon Postgres</div><div class="t-role">قاعدة البيانات</div></div>
+    </div>
+    <div class="tech-card">
+      <span class="t-icon">☁️</span>
+      <div><div class="t-name">Vercel Blob</div><div class="t-role">تخزين الصور</div></div>
+    </div>
+    <div class="tech-card">
+      <span class="t-icon">💳</span>
+      <div><div class="t-name">Stripe</div><div class="t-role">$0.50 دفع</div></div>
+    </div>
+    <div class="tech-card">
+      <span class="t-icon">📧</span>
+      <div><div class="t-name">Resend</div><div class="t-role">إشعارات البريد</div></div>
+    </div>
+    <div class="tech-card">
+      <span class="t-icon">🎨</span>
+      <div><div class="t-name">Canvas 2D</div><div class="t-role">Infinite zoom</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     MAIN FLOW STEPS
+══════════════════════════════════════════ -->
+<div class="flow">
+
+  <!-- ────── STEP 1: Landing ────── -->
+  <div class="step">
+    <div class="step-info">
+      <div class="step-badge"><span class="num">1</span> الشاشة الأولى</div>
+      <h2 class="step-title">الصفحة الرئيسية<br><span style="color:#818cf8">Landing Page</span></h2>
+      <p class="step-desc">أول ما يفتح المستخدم الموقع، يشوف صفحة مبهرة تشرح الفكرة. يشوف كم خانة انباعت وكم باقي، مع زر واضح "اشتري خانتك بـ50 سنت".</p>
+      <div class="step-details">
+        <div class="detail-item"><span class="dot"></span>عداد حي للخانات المباعة</div>
+        <div class="detail-item"><span class="dot"></span>progress bar يُظهر نسبة البيع</div>
+        <div class="detail-item"><span class="dot"></span>3 مميزات: Zoom لانهائي، صور 8MB، دائمي</div>
+        <div class="detail-item"><span class="dot"></span>زر "استكشف المعرض" وزر "اشتري"</div>
+      </div>
+    </div>
+    <div class="screen">
+      <div class="screen-bar">
+        <span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span>
+        <span class="url">million-image-gallery.vercel.app</span>
+      </div>
+      <div class="screen-body">
+        <div class="s1-nav">
+          <span class="s1-logo">🖼️ Million Images</span>
+          <span class="s1-cta-nav">Buy Slot — $0.50</span>
+        </div>
+        <div class="s1-hero">
+          <div class="s1-grid-bg"></div>
+          <div class="s1-badge"><span class="live"></span>14 sold · 999,986 available</div>
+          <div class="s1-h1">One Million<br><span>Image Slots</span></div>
+          <div class="s1-sub">Buy a slot on a canvas of 1,000 × 1,000 images for just $0.50</div>
+          <div class="s1-btns">
+            <div class="s1-btn-primary">🔍 Explore Gallery</div>
+            <div class="s1-btn-ghost">Buy Slot — $0.50</div>
+          </div>
+        </div>
+        <div class="s1-progress">
+          <div class="s1-prog-label"><span>0.001% sold</span><span>999,986 left</span></div>
+          <div class="s1-prog-bar"><div class="s1-prog-fill"></div></div>
+        </div>
+        <div class="s1-cards">
+          <div class="s1-card"><div class="icon">🔍</div><div class="title">Infinite Zoom</div><div>from 1M to 1 image</div></div>
+          <div class="s1-card"><div class="icon">🖼️</div><div class="title">Full Res</div><div>up to 8MB image</div></div>
+          <div class="s1-card"><div class="icon">♾️</div><div class="title">Permanent</div><div>yours forever</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="connector"><div class="connector-line"></div><div class="connector-label">يضغط "استكشف"</div></div>
+
+  <!-- ────── STEP 2: Gallery Zoom Out ────── -->
+  <div class="step reverse">
+    <div class="screen">
+      <div class="screen-bar">
+        <span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span>
+        <span class="url">million-image-gallery.vercel.app/gallery</span>
+      </div>
+      <div class="screen-body s2-body">
+        <div class="s2-nav">
+          <span style="color:#818cf8;font-weight:700;font-size:0.7rem;">🖼️ Gallery</span>
+          <span style="color:#475569;">Overview · 0.6%</span>
+          <span style="background:#6366f1;color:white;padding:3px 8px;border-radius:4px;font-size:0.6rem;">Buy Slot</span>
+        </div>
+        <div class="s2-grid-container">
+          <div class="s2-grid" id="mainGrid"></div>
+          <div class="s2-hint">Scroll to zoom · Drag to pan · Click to buy</div>
+        </div>
+        <div class="s2-zoom-btns">
+          <div class="s2-zbtn">+</div>
+          <div class="s2-zbtn">−</div>
+          <div class="s2-zbtn" style="font-size:0.55rem;">⊞</div>
+        </div>
+      </div>
+    </div>
+    <div class="step-info">
+      <div class="step-badge"><span class="num">2</span> نظرة عامة</div>
+      <h2 class="step-title">المعرض — Zoom Out<br><span style="color:#818cf8">يشوف الكل</span></h2>
+      <p class="step-desc">عند فتح المعرض يشوف المستخدم الشبكة الكاملة — 1,000 × 1,000 خانة. الخانات الفارغة رمادية داكنة، والخانات المباعة تُظهر لون الصورة.</p>
+      <div class="step-details">
+        <div class="detail-item"><span class="dot"></span>Canvas 2D يرسم 1M خانة بكفاءة</div>
+        <div class="detail-item"><span class="dot"></span>فقط الخانات المباعة تُحمّل بيانات</div>
+        <div class="detail-item"><span class="dot"></span>Zoom out = نقاط ملونة</div>
+        <div class="detail-item"><span class="dot"></span>Scroll للزووم، Drag للتحريك</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="connector"><div class="connector-line"></div><div class="connector-label">يزووم داخل</div></div>
+
+  <!-- ────── STEP 3: Zoom In ────── -->
+  <div class="step">
+    <div class="step-info">
+      <div class="step-badge"><span class="num">3</span> تكبير</div>
+      <h2 class="step-title">Zoom In<br><span style="color:#818cf8">صور واضحة</span></h2>
+      <p class="step-desc">كلما زووم أكثر، تظهر الـthumbnails ثم الصور الكاملة بكل تفاصيلها. Hover على أي خانة مباعة يُظهر tooltip بالاسم والرابط.</p>
+      <div class="step-details">
+        <div class="detail-item"><span class="dot"></span>Zoom متوسط: thumbnails 64×64</div>
+        <div class="detail-item"><span class="dot"></span>Zoom max: صورة كاملة 8MB</div>
+        <div class="detail-item"><span class="dot"></span>Hover = tooltip بالاسم والرابط</div>
+        <div class="detail-item"><span class="dot"></span>Click خانة فارغة = شراء</div>
+        <div class="detail-item"><span class="dot"></span>Click خانة مباعة = عرض الصورة</div>
+      </div>
+    </div>
+    <div class="screen">
+      <div class="screen-bar">
+        <span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span>
+        <span class="url">gallery · Detail · 450%</span>
+      </div>
+      <div class="screen-body">
+        <div class="s3-grid">
+          <div class="s3-cell has-img" style="--c:#6366f1;">🌟</div>
+          <div class="s3-cell has-img" style="--c:#8b5cf6;">🎨</div>
+          <div class="s3-cell has-img" style="--c:#ec4899;" >🦋</div>
+          <div class="s3-cell"></div>
+          <div class="s3-cell has-img" style="--c:#f59e0b;">🏔️</div>
+          <div class="s3-cell"></div>
+          <div class="s3-cell has-img" style="--c:#10b981;">🌿</div>
+          <div class="s3-cell hovered" style="position:relative;">
+            <div class="s3-tooltip">My Brand · Row 42, Col 17 ↗</div>
+            🚀
+          </div>
+          <div class="s3-cell has-img" style="--c:#3b82f6;">🌊</div>
+          <div class="s3-cell"></div>
+          <div class="s3-cell has-img" style="--c:#f43f5e;">❤️</div>
+          <div class="s3-cell has-img" style="--c:#a855f7;">💜</div>
+          <div class="s3-cell"></div>
+          <div class="s3-cell has-img" style="--c:#22c55e;">🌱</div>
+          <div class="s3-cell"></div>
+          <div class="s3-cell has-img" style="--c:#eab308;">⭐</div>
+          <div class="s3-cell has-img" style="--c:#06b6d4;">🌀</div>
+          <div class="s3-cell"></div>
+        </div>
+        <div style="padding:6px 12px;background:#080818;font-size:0.6rem;color:#475569;border-top:1px solid #1e1e3a;">
+          Detail view · Scroll to zoom out · Click any empty slot to buy
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="connector"><div class="connector-line"></div><div class="connector-label">يضغط خانة فارغة</div></div>
+
+  <!-- ────── STEP 4: Purchase Modal ────── -->
+  <div class="step reverse">
+    <div class="screen">
+      <div class="screen-bar">
+        <span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span>
+        <span class="url">gallery · Buy Slot #42017</span>
+      </div>
+      <div class="screen-body">
+        <div class="s4-overlay">
+          <div class="s4-backdrop">
+            <div class="s4-modal">
+              <div class="s4-close">×</div>
+              <div class="s4-header">
+                <div class="s4-icon">🖼️</div>
+                <div>
+                  <h3>Buy this slot</h3>
+                  <p class="sub">Slot #42017 · Row 42, Col 17</p>
+                </div>
+              </div>
+              <div class="s4-price-box">
+                <div>
+                  <div class="label">Price</div>
+                  <div style="font-size:0.55rem;color:#475569;margin-top:2px;">One-time · yours forever</div>
+                </div>
+                <div class="price">$0.50</div>
+              </div>
+              <div class="s4-input" contenteditable="false">you@example.com</div>
+              <div class="s4-buy-btn">💳 Buy Now — $0.50</div>
+              <div class="s4-secure">🔒 Secure payment by Stripe</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="step-info">
+      <div class="step-badge"><span class="num">4</span> الشراء</div>
+      <h2 class="step-title">Modal الشراء<br><span style="color:#818cf8">$0.50 فقط</span></h2>
+      <p class="step-desc">بمجرد الضغط على خانة فارغة يظهر modal أنيق بسعر الخانة. المستخدم يُدخل بريده الإلكتروني ويضغط "شراء الآن" فيُحوَّل لـStripe.</p>
+      <div class="step-details">
+        <div class="detail-item"><span class="dot"></span>يُظهر رقم الخانة ومكانها (row, col)</div>
+        <div class="detail-item"><span class="dot"></span>سعر واضح $0.50</div>
+        <div class="detail-item"><span class="dot"></span>إدخال البريد لتأكيد الملكية</div>
+        <div class="detail-item"><span class="dot"></span>الخانة تُحجز مؤقتاً فور الضغط</div>
+        <div class="detail-item"><span class="dot"></span>دفع آمن عبر Stripe</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="connector"><div class="connector-line"></div><div class="connector-label">يضغط "شراء الآن"</div></div>
+
+  <!-- ────── STEP 5: Stripe Checkout ────── -->
+  <div class="step">
+    <div class="step-info">
+      <div class="step-badge"><span class="num">5</span> الدفع</div>
+      <h2 class="step-title">Stripe Checkout<br><span style="color:#818cf8">دفع آمن</span></h2>
+      <p class="step-desc">المستخدم يُحوَّل لصفحة Stripe الرسمية لدفع $0.50 فقط. بعد الدفع يُحوَّل تلقائياً لصفحة رفع الصورة.</p>
+      <div class="step-details">
+        <div class="detail-item"><span class="dot"></span>صفحة Stripe رسمية وآمنة 100%</div>
+        <div class="detail-item"><span class="dot"></span>يقبل Visa, Mastercard, Apple Pay</div>
+        <div class="detail-item"><span class="dot"></span>$0.50 فقط دفعة واحدة</div>
+        <div class="detail-item"><span class="dot"></span>Webhook يُؤكّد الدفع تلقائياً</div>
+        <div class="detail-item"><span class="dot"></span>إذا ألغى → الخانة تعود متاحة</div>
+      </div>
+    </div>
+    <div class="screen">
+      <div class="screen-bar">
+        <span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span>
+        <span class="url">checkout.stripe.com/pay/cs_test_...</span>
+      </div>
+      <div class="screen-body">
+        <div class="s5-body">
+          <div class="s5-header">
+            <span class="s5-stripe-logo">stripe</span>
+            <span style="font-size:0.7rem;color:#374151;font-family:sans-serif;font-weight:600;">Secure payment</span>
+          </div>
+          <div class="s5-product">
+            <div>
+              <div class="name">Image Slot #42017</div>
+              <div class="detail">Row 42, Column 17 — 1 of 1,000,000</div>
+            </div>
+            <div class="amount">$0.50</div>
+          </div>
+          <div class="s5-form-label">Card number</div>
+          <div class="s5-card-input">
+            <span class="placeholder">4242 4242 4242 4242</span>
+            <div class="cards">
+              <div class="s5-card-chip">VISA</div>
+              <div class="s5-card-chip">MC</div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+            <div>
+              <div class="s5-form-label">Expiry</div>
+              <div class="s5-card-input"><span class="placeholder">MM / YY</span></div>
+            </div>
+            <div>
+              <div class="s5-form-label">CVC</div>
+              <div class="s5-card-input"><span class="placeholder">•••</span></div>
+            </div>
+          </div>
+          <div class="s5-pay-btn">Pay $0.50</div>
+          <div class="s5-powered">Powered by <strong>Stripe</strong> · Terms · Privacy</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="connector"><div class="connector-line"></div><div class="connector-label">دفع ناجح → redirect</div></div>
+
+  <!-- ────── STEP 6: Upload ────── -->
+  <div class="step reverse">
+    <div class="screen">
+      <div class="screen-bar">
+        <span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span>
+        <span class="url">…/upload/42017?session_id=cs_…</span>
+      </div>
+      <div class="screen-body">
+        <div class="s6-body">
+          <div class="s6-success-bar">✅ Payment successful! Upload your image now</div>
+          <div class="s6-title">Upload Your Image</div>
+          <div class="s6-sub">Slot #42017 is yours! Upload to make it visible.</div>
+          <div class="s6-dropzone">
+            <div class="icon">📷</div>
+            <p>Click or drag & drop your image</p>
+            <p style="margin-top:4px;font-size:0.55rem;">JPG, PNG, WebP, GIF · max 8MB</p>
+          </div>
+          <div class="s6-input" placeholder="Title (optional)">My Brand Logo</div>
+          <div class="s6-input" placeholder="Link URL (optional)" style="direction:ltr;">https://mywebsite.com</div>
+          <div class="s6-upload-btn">⬆️ Upload Image</div>
+        </div>
+      </div>
+    </div>
+    <div class="step-info">
+      <div class="step-badge"><span class="num">6</span> رفع الصورة</div>
+      <h2 class="step-title">Upload Image<br><span style="color:#818cf8">صورتك للعالم</span></h2>
+      <p class="step-desc">بعد الدفع يُحوَّل المستخدم لصفحة رفع الصورة. يختار صورته (حتى 8MB)، يُضيف عنواناً ورابطاً، ويضغط رفع.</p>
+      <div class="step-details">
+        <div class="detail-item"><span class="dot"></span>حتى 8MB حجم الصورة</div>
+        <div class="detail-item"><span class="dot"></span>JPG, PNG, WebP, GIF مدعومة</div>
+        <div class="detail-item"><span class="dot"></span>thumbnail 64×64 يُولَّد تلقائياً</div>
+        <div class="detail-item"><span class="dot"></span>عنوان ورابط اختياريين</div>
+        <div class="detail-item"><span class="dot"></span>الصورة تظهر فوراً في الشبكة</div>
+        <div class="detail-item"><span class="dot"></span>email تأكيد يُرسل للبريد</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="connector"><div class="connector-line"></div><div class="connector-label">رفع ناجح!</div></div>
+
+  <!-- ────── STEP 7: Live in Gallery ────── -->
+  <div class="step">
+    <div class="step-info">
+      <div class="step-badge" style="background:rgba(34,197,94,0.15);border-color:rgba(34,197,94,0.4);color:#4ade80;">
+        <span class="num" style="background:#22c55e;">✓</span> النتيجة
+      </div>
+      <h2 class="step-title">صورتك حية 🎉<br><span style="color:#22c55e;">في المعرض للأبد</span></h2>
+      <p class="step-desc">الصورة تظهر فوراً في الشبكة الكبيرة. أي شخص في العالم يفتح الموقع ويزووم على خانتك يرى صورتك كاملة. خانتك ملكك للأبد.</p>
+      <div class="step-details">
+        <div class="detail-item"><span class="dot" style="background:#22c55e;"></span>تظهر في الشبكة فوراً</div>
+        <div class="detail-item"><span class="dot" style="background:#22c55e;"></span>Hover يُظهر اسمك ورابطك</div>
+        <div class="detail-item"><span class="dot" style="background:#22c55e;"></span>Zoom max → صورة كاملة 8MB</div>
+        <div class="detail-item"><span class="dot" style="background:#22c55e;"></span>ملكية دائمة — لا subscriptions</div>
+        <div class="detail-item"><span class="dot" style="background:#22c55e;"></span>email تأكيد في البريد</div>
+      </div>
+    </div>
+    <div class="screen">
+      <div class="screen-bar">
+        <span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span>
+        <span class="url">gallery · Your slot is live! 🎉</span>
+      </div>
+      <div class="screen-body">
+        <div class="s7-grid">
+          <div class="s7-cell" style="background:#0d1020;"></div>
+          <div class="s7-cell" style="background:#6366f130;">🌟</div>
+          <div class="s7-cell" style="background:#8b5cf630;">🎨</div>
+          <div class="s7-cell" style="background:#0d1020;"></div>
+          <div class="s7-cell" style="background:#f59e0b30;">🏔️</div>
+          <div class="s7-cell" style="background:#0d1020;"></div>
+          <div class="s7-cell" style="background:#10b98130;">🌿</div>
+          <div class="s7-cell mine">🚀</div>
+          <div class="s7-cell" style="background:#3b82f630;">🌊</div>
+          <div class="s7-cell" style="background:#0d1020;"></div>
+          <div class="s7-cell" style="background:#f43f5e30;">❤️</div>
+          <div class="s7-cell" style="background:#a855f730;">💜</div>
+          <div class="s7-cell" style="background:#0d1020;"></div>
+          <div class="s7-cell" style="background:#22c55e30;">🌱</div>
+          <div class="s7-cell" style="background:#0d1020;"></div>
+          <div class="s7-cell" style="background:#eab30830;">⭐</div>
+          <div class="s7-cell" style="background:#06b6d430;">🌀</div>
+          <div class="s7-cell" style="background:#0d1020;"></div>
+        </div>
+        <div class="s7-confetti">🎉 Your image is now live! Slot #42017 · Visible to the whole world</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end .flow -->
+
+<!-- ══════════════════════════════════════════
+     PRICING & STATS
+══════════════════════════════════════════ -->
+<div style="background:#0d0d1e;border-top:1px solid #1e1e3a;padding:60px 20px;text-align:center;">
+  <h2 style="font-size:1.8rem;font-weight:900;color:#f1f5f9;margin-bottom:40px;">الأرقام</h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;max-width:800px;margin:0 auto;">
+    <div style="background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);border-radius:12px;padding:24px;">
+      <div style="font-size:2.5rem;font-weight:900;color:#818cf8;">1,000,000</div>
+      <div style="font-size:0.8rem;color:#64748b;margin-top:4px;">إجمالي الخانات</div>
+    </div>
+    <div style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:12px;padding:24px;">
+      <div style="font-size:2.5rem;font-weight:900;color:#4ade80;">$0.50</div>
+      <div style="font-size:0.8rem;color:#64748b;margin-top:4px;">سعر الخانة الواحدة</div>
+    </div>
+    <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:12px;padding:24px;">
+      <div style="font-size:2.5rem;font-weight:900;color:#fbbf24;">$500,000</div>
+      <div style="font-size:0.8rem;color:#64748b;margin-top:4px;">إجمالي الأرباح إذا باعت الكل</div>
+    </div>
+    <div style="background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.2);border-radius:12px;padding:24px;">
+      <div style="font-size:2.5rem;font-weight:900;color:#c084fc;">8MB</div>
+      <div style="font-size:0.8rem;color:#64748b;margin-top:4px;">أقصى حجم للصورة</div>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<div style="text-align:center;padding:30px;color:#1e1e3a;font-size:0.75rem;">
+  Million Image Gallery — Storyboard v1.0
+</div>
+
+<script>
+  // Generate the overview grid with random sold cells
+  const grid = document.getElementById('mainGrid');
+  if (grid) {
+    const colors = ['#6366f1','#8b5cf6','#ec4899','#f59e0b','#10b981','#3b82f6','#f43f5e','#22c55e','#06b6d4','#a855f7','#eab308','#14b8a6'];
+    for (let i = 0; i < 1600; i++) {
+      const cell = document.createElement('div');
+      cell.className = 's2-cell';
+      if (Math.random() < 0.015) {
+        cell.className += ' sold';
+        cell.style.setProperty('--c', colors[Math.floor(Math.random()*colors.length)]);
+      }
+      grid.appendChild(cell);
+    }
+  }
+</script>
+</body>
+</html>
