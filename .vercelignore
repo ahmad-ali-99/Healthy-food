@@ -1,0 +1,10 @@
+node_modules/
+.next/
+prisma/dev.db
+prisma/*.db
+public/uploads/
+public/thumbs/
+public/tiles/
+.env
+.env.local
+tsconfig.tsbuildinfo
