@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import type { Application, Container, Graphics, Sprite, Texture } from "pixi.js";
 import PurchaseModal from "./PurchaseModal";
 import SlotTooltip from "./SlotTooltip";
 
 const GRID = 1000;
-const SLOT_PX = 10; // world units per slot
-const WORLD_SIZE = GRID * SLOT_PX; // 10,000 world px
+const SLOT_PX = 10;
+const WORLD_SIZE = GRID * SLOT_PX; // 10,000 world units
+const MINIMAP_SIZE = 150;
 
 type SlotData = {
   id: number;
@@ -21,15 +21,8 @@ type SlotData = {
   dominantColor?: string | null;
 };
 
-type TooltipState = {
-  x: number;
-  y: number;
-  slot: SlotData;
-} | null;
-
-type ModalState = {
-  slot: SlotData;
-} | null;
+type TooltipState = { x: number; y: number; slot: SlotData } | null;
+type ModalState = { slot: SlotData } | null;
 
 interface Props {
   onSoldCountChange?: (count: number) => void;
@@ -37,23 +30,21 @@ interface Props {
 
 export default function GalleryCanvas({ onSoldCountChange }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const appRef = useRef<Application | null>(null);
-  const viewportRef = useRef<Container | null>(null);
-  const spriteLayerRef = useRef<Container | null>(null);
-  const highlightRef = useRef<Graphics | null>(null);
-  const textureCache = useRef<Map<string, Texture>>(new Map());
+  const minimapRef = useRef<HTMLCanvasElement>(null);
+  const textureCache = useRef<Map<string, HTMLImageElement>>(new Map());
   const slotCache = useRef<Map<number, SlotData>>(new Map());
   const loadingTiles = useRef<Set<string>>(new Set());
   const rafRef = useRef<number>(0);
+  const hoveredSlotIdRef = useRef<number | null>(null);
 
   const [tooltip, setTooltip] = useState<TooltipState>(null);
   const [modal, setModal] = useState<ModalState>(null);
   const [selectedSlot, setSelectedSlot] = useState<SlotData | null>(null);
-  const [zoom, setZoom] = useState(1);
+  const [zoom, setZoom] = useState(0.06);
 
-  // Pan state
   const panRef = useRef({ isDragging: false, startX: 0, startY: 0, vpX: 0, vpY: 0 });
-  const vpRef = useRef({ x: -WORLD_SIZE / 2, y: -WORLD_SIZE / 2, scale: 0.06 });
+  // vp.x/y = world coordinate at viewport CENTER
+  const vpRef = useRef({ x: WORLD_SIZE / 2, y: WORLD_SIZE / 2, scale: 0.06 });
 
   const worldToScreen = useCallback((wx: number, wy: number) => {
     const vp = vpRef.current;
@@ -109,13 +100,74 @@ export default function GalleryCanvas({ onSoldCountChange }: Props) {
         slotCache.current.set(s.id, s);
         if (s.status === "sold") soldCount++;
       }
-      onSoldCountChange?.(slotCache.current.size > 0 ? soldCount : 0);
+      onSoldCountChange?.(soldCount);
     } finally {
       loadingTiles.current.delete(key);
     }
   }, [getVisibleGridBounds, onSoldCountChange]);
 
-  // Draw the grid using Canvas2D (fallback when Pixi.js is not available)
+  // Minimap: draws the full grid overview + viewport rectangle
+  const drawMinimap = useCallback(() => {
+    const mc = minimapRef.current;
+    if (!mc) return;
+    const mctx = mc.getContext("2d");
+    if (!mctx) return;
+
+    const MW = MINIMAP_SIZE;
+    const MH = MINIMAP_SIZE;
+    const scaleX = MW / GRID;
+    const scaleY = MH / GRID;
+
+    mctx.fillStyle = "#090910";
+    mctx.fillRect(0, 0, MW, MH);
+
+    // Subtle grid overlay
+    mctx.strokeStyle = "rgba(99,102,241,0.05)";
+    mctx.lineWidth = 0.5;
+    for (let i = 0; i <= 10; i++) {
+      mctx.beginPath();
+      mctx.moveTo(i * MW / 10, 0);
+      mctx.lineTo(i * MW / 10, MH);
+      mctx.stroke();
+      mctx.beginPath();
+      mctx.moveTo(0, i * MH / 10);
+      mctx.lineTo(MW, i * MH / 10);
+      mctx.stroke();
+    }
+
+    // Draw sold slots as colored pixels
+    slotCache.current.forEach((slot) => {
+      if (slot.status === "sold") {
+        const mx = slot.col * scaleX;
+        const my = slot.row * scaleY;
+        mctx.fillStyle = slot.dominantColor ?? "#6366f1";
+        mctx.fillRect(mx, my, Math.max(1.5, scaleX + 0.5), Math.max(1.5, scaleY + 0.5));
+      }
+    });
+
+    // Viewport rectangle
+    const vp = vpRef.current;
+    const cw = window.innerWidth;
+    const ch = window.innerHeight;
+    const tlWx = (-cw / 2) / vp.scale + vp.x;
+    const tlWy = (-ch / 2) / vp.scale + vp.y;
+    const brWx = (cw / 2) / vp.scale + vp.x;
+    const brWy = (ch / 2) / vp.scale + vp.y;
+
+    const vx1 = Math.max(0, Math.min(MW, (tlWx / SLOT_PX) * scaleX));
+    const vy1 = Math.max(0, Math.min(MH, (tlWy / SLOT_PX) * scaleY));
+    const vx2 = Math.max(0, Math.min(MW, (brWx / SLOT_PX) * scaleX));
+    const vy2 = Math.max(0, Math.min(MH, (brWy / SLOT_PX) * scaleY));
+    const vrW = Math.max(2, vx2 - vx1);
+    const vrH = Math.max(2, vy2 - vy1);
+
+    mctx.fillStyle = "rgba(99,102,241,0.12)";
+    mctx.fillRect(vx1, vy1, vrW, vrH);
+    mctx.strokeStyle = "rgba(99,102,241,0.9)";
+    mctx.lineWidth = 1.5;
+    mctx.strokeRect(vx1, vy1, vrW, vrH);
+  }, []);
+
   const drawCanvas = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -126,15 +178,15 @@ export default function GalleryCanvas({ onSoldCountChange }: Props) {
     const ch = canvas.height;
     const vp = vpRef.current;
     const scale = vp.scale;
+    const slotScreenSize = SLOT_PX * scale;
+    const hoveredId = hoveredSlotIdRef.current;
 
     ctx.clearRect(0, 0, cw, ch);
     ctx.fillStyle = "#0a0a0f";
     ctx.fillRect(0, 0, cw, ch);
 
     const bounds = getVisibleGridBounds();
-    const slotScreenSize = SLOT_PX * scale;
 
-    // Draw slots
     for (let r = bounds.r1; r <= bounds.r2; r++) {
       for (let c = bounds.c1; c <= bounds.c2; c++) {
         const id = r * GRID + c;
@@ -142,20 +194,19 @@ export default function GalleryCanvas({ onSoldCountChange }: Props) {
         const wx = c * SLOT_PX;
         const wy = r * SLOT_PX;
         const { sx, sy } = worldToScreen(wx, wy);
+        const isHovered = hoveredId === id;
 
         if (slot?.status === "sold") {
-          // Draw image thumbnail if zoom is enough
+          // Try thumbnail at medium zoom
           if (scale > 0.3 && slot.thumbUrl) {
             const imgKey = `thumb_${id}`;
-            let img = (textureCache.current as any).get(imgKey) as HTMLImageElement | undefined;
+            let img = textureCache.current.get(imgKey);
             if (!img) {
               img = new Image();
               img.crossOrigin = "anonymous";
               img.src = slot.thumbUrl;
-              img.onload = () => {
-                (textureCache.current as any).set(imgKey, img);
-              };
-              (textureCache.current as any).set(imgKey, img);
+              img.onload = () => { textureCache.current.set(imgKey, img!); };
+              textureCache.current.set(imgKey, img);
             }
             if (img.complete && img.naturalWidth > 0) {
               ctx.drawImage(img, sx, sy, slotScreenSize, slotScreenSize);
@@ -167,34 +218,64 @@ export default function GalleryCanvas({ onSoldCountChange }: Props) {
             ctx.fillStyle = slot.dominantColor ?? "#1e1b4b";
             ctx.fillRect(sx, sy, slotScreenSize, slotScreenSize);
           }
+
+          // Hover: white glow
+          if (isHovered && slotScreenSize > 3) {
+            ctx.save();
+            ctx.shadowBlur = 14;
+            ctx.shadowColor = "rgba(255,255,255,0.7)";
+            ctx.strokeStyle = "rgba(255,255,255,0.9)";
+            ctx.lineWidth = 1.5;
+            ctx.strokeRect(sx + 0.75, sy + 0.75, slotScreenSize - 1.5, slotScreenSize - 1.5);
+            ctx.restore();
+          }
         } else {
           // Empty slot
           if (slotScreenSize > 2) {
-            ctx.fillStyle = "#0f1729";
+            const isEven = (r + c) % 2 === 0;
+            ctx.fillStyle = isEven ? "#0f1729" : "#111b35";
             ctx.fillRect(sx, sy, slotScreenSize, slotScreenSize);
-            if (slotScreenSize > 4) {
-              ctx.strokeStyle = "#1a1a3a";
+
+            if (slotScreenSize > 5) {
+              ctx.strokeStyle = "#1e2a4a";
               ctx.lineWidth = 0.5;
               ctx.strokeRect(sx + 0.5, sy + 0.5, slotScreenSize - 1, slotScreenSize - 1);
             }
+
+            // Hover: indigo glow
+            if (isHovered && slotScreenSize > 5) {
+              ctx.save();
+              ctx.shadowBlur = 18;
+              ctx.shadowColor = "rgba(99,102,241,0.8)";
+              ctx.strokeStyle = "rgba(99,102,241,0.9)";
+              ctx.lineWidth = 2;
+              ctx.strokeRect(sx + 1, sy + 1, slotScreenSize - 2, slotScreenSize - 2);
+              ctx.restore();
+            }
           } else {
-            ctx.fillStyle = "#0d0d22";
+            ctx.fillStyle = "#0c1220";
             ctx.fillRect(sx, sy, slotScreenSize, slotScreenSize);
           }
         }
       }
     }
 
-    // Draw selected slot highlight
+    // Selected slot ring
     if (selectedSlot) {
       const wx = selectedSlot.col * SLOT_PX;
       const wy = selectedSlot.row * SLOT_PX;
       const { sx, sy } = worldToScreen(wx, wy);
+      ctx.save();
+      ctx.shadowBlur = 20;
+      ctx.shadowColor = "rgba(34,197,94,0.8)";
       ctx.strokeStyle = "#22c55e";
       ctx.lineWidth = 2;
       ctx.strokeRect(sx, sy, slotScreenSize, slotScreenSize);
+      ctx.restore();
     }
-  }, [getVisibleGridBounds, worldToScreen, selectedSlot]);
+
+    drawMinimap();
+  }, [getVisibleGridBounds, worldToScreen, selectedSlot, drawMinimap]);
 
   // Animation loop
   useEffect(() => {
@@ -219,7 +300,7 @@ export default function GalleryCanvas({ onSoldCountChange }: Props) {
     return () => window.removeEventListener("resize", resize);
   }, []);
 
-  // Zoom on scroll
+  // Scroll to zoom
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -230,7 +311,6 @@ export default function GalleryCanvas({ onSoldCountChange }: Props) {
       const factor = e.deltaY > 0 ? 0.9 : 1.1;
       const newScale = Math.max(0.005, Math.min(50, vp.scale * factor));
 
-      // Zoom towards cursor
       const { wx, wy } = screenToWorld(e.clientX, e.clientY);
       vp.x = wx - (e.clientX - window.innerWidth / 2) / newScale;
       vp.y = wy - (e.clientY - window.innerHeight / 2) / newScale;
@@ -244,12 +324,13 @@ export default function GalleryCanvas({ onSoldCountChange }: Props) {
     return () => canvas.removeEventListener("wheel", onWheel);
   }, [screenToWorld, loadSlotsInView]);
 
-  // Pan (mouse drag)
+  // Mouse: pan + hover + click
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const onMouseDown = (e: MouseEvent) => {
+      canvas.style.cursor = "grabbing";
       panRef.current = {
         isDragging: true,
         startX: e.clientX,
@@ -267,31 +348,34 @@ export default function GalleryCanvas({ onSoldCountChange }: Props) {
         vpRef.current.x = pan.vpX - dx;
         vpRef.current.y = pan.vpY - dy;
         setTooltip(null);
+        hoveredSlotIdRef.current = null;
       } else {
-        // Hover: find slot under cursor
         const { wx, wy } = screenToWorld(e.clientX, e.clientY);
         const col = Math.floor(wx / SLOT_PX);
         const row = Math.floor(wy / SLOT_PX);
         if (col >= 0 && col < GRID && row >= 0 && row < GRID) {
           const id = row * GRID + col;
+          hoveredSlotIdRef.current = id;
           const slot = slotCache.current.get(id);
           if (slot?.status === "sold") {
             setTooltip({ x: e.clientX, y: e.clientY, slot });
           } else {
             setTooltip(null);
           }
+        } else {
+          hoveredSlotIdRef.current = null;
+          setTooltip(null);
         }
       }
     };
 
     const onMouseUp = (e: MouseEvent) => {
       const pan = panRef.current;
-      const moved =
-        Math.abs(e.clientX - pan.startX) > 3 || Math.abs(e.clientY - pan.startY) > 3;
+      const moved = Math.abs(e.clientX - pan.startX) > 3 || Math.abs(e.clientY - pan.startY) > 3;
       pan.isDragging = false;
+      canvas.style.cursor = tooltip ? "pointer" : "crosshair";
 
       if (!moved) {
-        // Click: identify slot
         const { wx, wy } = screenToWorld(e.clientX, e.clientY);
         const col = Math.floor(wx / SLOT_PX);
         const row = Math.floor(wy / SLOT_PX);
@@ -308,24 +392,30 @@ export default function GalleryCanvas({ onSoldCountChange }: Props) {
       }
     };
 
+    const onMouseLeave = () => {
+      hoveredSlotIdRef.current = null;
+      setTooltip(null);
+    };
+
     canvas.addEventListener("mousedown", onMouseDown);
     window.addEventListener("mousemove", onMouseMove);
     window.addEventListener("mouseup", onMouseUp);
+    canvas.addEventListener("mouseleave", onMouseLeave);
 
     return () => {
       canvas.removeEventListener("mousedown", onMouseDown);
       window.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mouseup", onMouseUp);
+      canvas.removeEventListener("mouseleave", onMouseLeave);
     };
-  }, [screenToWorld]);
+  }, [screenToWorld, tooltip]);
 
-  // Touch support (pinch to zoom + pan)
+  // Touch: pinch zoom + single-finger pan
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     let lastTouchDist = 0;
-    let lastTouchMid = { x: 0, y: 0 };
     let touchPanStart = { vpX: 0, vpY: 0, tx: 0, ty: 0 };
 
     const onTouchStart = (e: TouchEvent) => {
@@ -333,10 +423,6 @@ export default function GalleryCanvas({ onSoldCountChange }: Props) {
         const dx = e.touches[1].clientX - e.touches[0].clientX;
         const dy = e.touches[1].clientY - e.touches[0].clientY;
         lastTouchDist = Math.sqrt(dx * dx + dy * dy);
-        lastTouchMid = {
-          x: (e.touches[0].clientX + e.touches[1].clientX) / 2,
-          y: (e.touches[0].clientY + e.touches[1].clientY) / 2,
-        };
       } else if (e.touches.length === 1) {
         touchPanStart = {
           vpX: vpRef.current.x,
@@ -387,11 +473,15 @@ export default function GalleryCanvas({ onSoldCountChange }: Props) {
     loadSlotsInView();
   }, [loadSlotsInView]);
 
-  // Reload when zoom changes significantly
+  // Reload on zoom change
   useEffect(() => {
     const timer = setTimeout(() => loadSlotsInView(), 200);
     return () => clearTimeout(timer);
   }, [zoom, loadSlotsInView]);
+
+  const zoomLabel =
+    zoom < 0.02 ? "Overview" : zoom < 0.5 ? "Region" : zoom < 5 ? "Area" : "Detail";
+  const zoomPct = (zoom * 100).toFixed(0);
 
   return (
     <>
@@ -402,19 +492,28 @@ export default function GalleryCanvas({ onSoldCountChange }: Props) {
         style={{ cursor: tooltip ? "pointer" : "crosshair" }}
       />
 
-      {/* Zoom level indicator */}
-      <div className="absolute bottom-14 right-4 z-20 glass rounded-lg px-3 py-2 text-xs font-mono text-slate-400">
-        {vpRef.current.scale < 0.02
-          ? "Overview"
-          : vpRef.current.scale < 0.5
-          ? "Region"
-          : vpRef.current.scale < 5
-          ? "Area"
-          : "Detail"}{" "}
-        · {(vpRef.current.scale * 100).toFixed(0)}%
+      {/* Minimap — bottom left */}
+      <div className="absolute bottom-28 left-4 z-20">
+        <div className="glass rounded-xl overflow-hidden border border-indigo-500/20 shadow-xl">
+          <div className="px-2 py-1.5 text-xs text-slate-500 border-b border-slate-800 flex items-center justify-between">
+            <span>Overview</span>
+            <span className="text-indigo-400/60 font-mono text-[10px]">1000×1000</span>
+          </div>
+          <canvas
+            ref={minimapRef}
+            width={MINIMAP_SIZE}
+            height={MINIMAP_SIZE}
+            className="block"
+          />
+        </div>
       </div>
 
-      {/* Zoom buttons */}
+      {/* Zoom indicator — bottom right, above buttons */}
+      <div className="absolute bottom-[76px] right-4 z-20 glass rounded-lg px-3 py-2 text-xs font-mono text-slate-400">
+        {zoomLabel} · {zoomPct}%
+      </div>
+
+      {/* Zoom controls */}
       <div className="absolute bottom-4 right-4 z-20 flex flex-col gap-1">
         <button
           onClick={() => {
@@ -422,6 +521,7 @@ export default function GalleryCanvas({ onSoldCountChange }: Props) {
             setZoom(vpRef.current.scale);
           }}
           className="w-10 h-10 glass rounded-lg flex items-center justify-center text-white hover:bg-white/10 transition-colors text-lg font-bold"
+          title="Zoom in"
         >
           +
         </button>
@@ -431,12 +531,13 @@ export default function GalleryCanvas({ onSoldCountChange }: Props) {
             setZoom(vpRef.current.scale);
           }}
           className="w-10 h-10 glass rounded-lg flex items-center justify-center text-white hover:bg-white/10 transition-colors text-lg font-bold"
+          title="Zoom out"
         >
           −
         </button>
         <button
           onClick={() => {
-            vpRef.current = { x: -WORLD_SIZE / 2, y: -WORLD_SIZE / 2, scale: 0.06 };
+            vpRef.current = { x: WORLD_SIZE / 2, y: WORLD_SIZE / 2, scale: 0.06 };
             setZoom(0.06);
           }}
           className="w-10 h-10 glass rounded-lg flex items-center justify-center text-slate-400 hover:bg-white/10 transition-colors text-xs"
@@ -446,7 +547,6 @@ export default function GalleryCanvas({ onSoldCountChange }: Props) {
         </button>
       </div>
 
-      {/* Hover tooltip */}
       {tooltip && (
         <SlotTooltip
           x={tooltip.x}
@@ -456,7 +556,6 @@ export default function GalleryCanvas({ onSoldCountChange }: Props) {
         />
       )}
 
-      {/* Purchase / detail modal */}
       {modal && (
         <PurchaseModal
           slot={modal.slot}
