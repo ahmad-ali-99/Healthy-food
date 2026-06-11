@@ -4,9 +4,10 @@
   "description": "Million Image Gallery - Buy a slot, upload your image",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
+    "postinstall": "prisma generate",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:seed": "npx tsx scripts/seed-slots.ts",
