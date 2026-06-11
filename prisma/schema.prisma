@@ -1,0 +1,28 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Slot {
+  id             Int      @id
+  row            Int
+  col            Int
+  status         String   @default("available")
+  ownerEmail     String?
+  imageUrl       String?
+  thumbUrl       String?
+  dominantColor  String?
+  title          String?
+  linkUrl        String?
+  purchasedAt    DateTime?
+  stripeSession  String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([row, col])
+  @@index([status])
+}

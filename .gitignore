@@ -1,0 +1,27 @@
+# dependencies
+node_modules/
+
+# Next.js
+.next/
+out/
+
+# production build
+build/
+
+# env files
+.env.local
+.env
+
+# database
+prisma/dev.db
+prisma/*.db
+dev.db
+
+# uploads (user content - should be on cloud storage in production)
+public/uploads/
+public/thumbs/
+
+# misc
+.DS_Store
+*.pem
+npm-debug.log*
